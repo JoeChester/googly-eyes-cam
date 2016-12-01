@@ -4,6 +4,7 @@
 <head>
     <title>Googly Eyes Cam v.0.0.1</title>
     <link rel="stylesheet" href="css/materialize.min.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
     <link rel="stylesheet" href="css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -16,6 +17,47 @@
         </scene>
     </x3d>
     <video id="video" width="960" height="720" class="roundEdgeBig" autoplay></video>
+
+    <div class="button-container">
+        <button class="btn-floating btn-medium waves-effect waves-light amber darken-2 button-left" onclick="settings()">
+            <i class="fa fa-gear fa-lg icon-medium"></i>
+        </button>
+
+        <button class="btn-floating btn-large waves-effect waves-light amber darken-4" onclick="photo()">
+            <i class="fa fa-camera-retro fa-lg icon-large"></i>
+        </button>
+
+        
+
+        <div class="fixed-action-btn button-right-menu-popup">
+            <button class="btn-floating btn-medium waves-effect waves-light amber button-right" onclick="eye()">
+                <i class="fa fa-eye fa-lg icon-medium"></i>
+            </button>
+            <ul>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-1 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-2 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-3 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-4 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+    </div>
 
     <!-- ___________ SCRIPTS ___________ -->
     <script src="js/jquery-3.1.1.min.js"></script>

@@ -58,8 +58,9 @@ h2{
 .button-container{
     width: 100%;
     position: fixed;
-    bottom: 10;
+    bottom: 10px;
     text-align: center;
+    z-index: 3;
 }
 
 .btn-floating.btn-large {
@@ -67,8 +68,17 @@ h2{
     height: 100px;   
 }
 
+.btn-floating.btn-medium {
+    width: 75px;
+    height: 75px;   
+}
+
 .icon-large{
     font-size: 4rem !important;
+}
+
+.icon-medium{
+    font-size: 3rem !important;
 }
 
 .settings-error{
@@ -99,4 +109,25 @@ html, body{
     top: 0;
     left: 0;
     z-index: 1;
+}
+
+.button-left{
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+}
+
+.button-right{
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+}
+
+.button-right-menu{
+    right: 10px;
+}
+
+.button-right-menu-popup{
+    right: 75px;
+    bottom: 20px;
 }
