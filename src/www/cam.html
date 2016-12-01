@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Googly Eyes Cam v.0.0.1</title>
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body class="light-blue darken-2">
+    <x3d id="x3dom">
+        <scene>
+            <transform translation="0.240168 0.542886 0.457424">
+                <inline nameSpaceName="Charmander" mapDEFToID="true" url="Charmander.x3d"> </inline>
+        </scene>
+    </x3d>
+    <video id="video" width="960" height="720" class="roundEdgeBig" autoplay></video>
+
+    <!-- ___________ SCRIPTS ___________ -->
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+    <script src="js/x3dom.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

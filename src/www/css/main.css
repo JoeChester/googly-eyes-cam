@@ -1,0 +1,102 @@
+/* Indie Flower */
+@font-face {
+    font-family: 'Indie Flower';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./IndieFlower.ttf') format('truetype');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+/* Material Icons */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./Material_Icons.woff2') format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: 'Indie Flower', serif;
+    font-size: 48px;
+    color: #FFFFFF;
+}
+
+h2{
+  color: #FFFFFF;
+  font-weight: bold;  
+}
+
+#ip{
+    color: #FFFFFF !important;
+    height: 4rem;
+    font-size: 3rem;
+    text-align: center;
+    border-radius: 3rem;
+    border-bottom: none;
+}
+
+.header{
+    text-align: center;
+}
+
+.button-container{
+    width: 100%;
+    position: fixed;
+    bottom: 10;
+    text-align: center;
+}
+
+.btn-floating.btn-large {
+    width: 100px;
+    height: 100px;   
+}
+
+.icon-large{
+    font-size: 4rem !important;
+}
+
+.settings-error{
+    border-style: solid !important;
+    border-color: #ffa000 !important;
+    box-sizing: border-box !important;
+}
+
+/* MAIN SCREEN */
+
+html, body{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#x3dom{
+    border: none;
+    background: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#video{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
