@@ -95,20 +95,25 @@ html, body{
     overflow: hidden;
 }
 
-#x3dom{
-    border: none;
-    background: none;
+.fullscreen{
     position: fixed;
     top: 0;
     left: 0;
+}
+
+#x3dom{
+    border: none;
+    background: none;
     z-index: 2;
 }
 
 #video{
-    position: fixed;
-    top: 0;
-    left: 0;
     z-index: 1;
+}
+
+#photo{
+    z-index: 3;
+    display: none;
 }
 
 .button-left{
@@ -130,4 +135,8 @@ html, body{
 .button-right-menu-popup{
     right: 75px;
     bottom: 20px;
+}
+
+.fixed-action-btn ul li{
+    margin-bottom: 10px !important;
 }

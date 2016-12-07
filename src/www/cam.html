@@ -10,20 +10,21 @@
 </head>
 
 <body class="light-blue darken-2">
-    <x3d id="x3dom">
+    <x3d id="x3dom" class="fullscreen">
         <scene>
             <transform translation="0.240168 0.542886 0.457424">
                 <inline nameSpaceName="Charmander" mapDEFToID="true" url="Charmander.x3d"> </inline>
         </scene>
     </x3d>
-    <video id="video" width="960" height="720" class="roundEdgeBig" autoplay></video>
+    <video id="video" width="960" height="720" class="fullscreen" autoplay></video>
+    <canvas id="photo" width="960" height="720" class="fullscreen"></canvas>
 
     <div class="button-container">
         <button class="btn-floating btn-medium waves-effect waves-light amber darken-2 button-left" onclick="settings()">
             <i class="fa fa-gear fa-lg icon-medium"></i>
         </button>
 
-        <button class="btn-floating btn-large waves-effect waves-light amber darken-4" onclick="photo()">
+        <button class="btn-floating btn-large waves-effect waves-light amber darken-4" onclick="snapshot()">
             <i class="fa fa-camera-retro fa-lg icon-large"></i>
         </button>
 
