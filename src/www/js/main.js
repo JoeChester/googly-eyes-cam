@@ -8,6 +8,9 @@ var x3dElem = document.getElementById('x3dom');
 var x3dCanvas;
 var ctx = photo.getContext('2d');
 
+var socket = null;
+var isOpen = false;
+
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -45,10 +48,10 @@ function snapshot(){
 
 
     ctx.drawImage(video, anchorX, 0, currentWidth, currentHeight);
-    x3dCanvas = x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
-    ctx.drawImage(x3dCanvas, 0, 0, width, height);
+    //x3dCanvas = x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
+    //ctx.drawImage(x3dCanvas, 0, 0, width, height);
 
-    saveToServer();
+    sendToServer();
 
 }
 
@@ -78,10 +81,42 @@ function saveToServer(){
   });
 }
 
+// Web Socket Functions
+function sendToServer(){
+    var dataURL = photo.toDataURL("image/jpeg", 0.5);
+    socket.send(dataURL);
+}
+
+function handleOpen(){
+    console.log("Connected to Websocket!");
+    isopen = true;
+}
+
+function handleMessage(event){
+    console.log(event);
+    if (typeof event.data == "string") {
+        console.log("Text message received: " + event.data);
+    }
+}
+
+function handleClose(event){
+    console.log("Connection closed.");
+    socket = null;
+    isopen = false;
+}
+
+function connect(ip){
+    socket = new WebSocket("ws://" + ip);
+    socket.onopen = handleOpen;
+    socket.onmessage = handleMessage;
+    socket.onclose = handleClose;
+}
+
 $(document).ready(jqUpdateSize);    
 $(window).resize(jqUpdateSize);  
 
 ip = getParameterByName("ip");
+connect(ip);
 
 // Camera Live Preview
 if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
