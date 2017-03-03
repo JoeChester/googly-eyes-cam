@@ -20,6 +20,6 @@ function ok(){
 }
 
 $(function(){
-    $("#ip").val(getParameterByName("ip") || "localhost");
+    $("#ip").val(getParameterByName("ip") || "localhost:9000");
     $("#ip").focus();
 });

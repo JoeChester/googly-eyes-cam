@@ -5,10 +5,17 @@ from PIL import Image
 import cv2
 from io import BytesIO
 import numpy as np
+import simplejson as json
 try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
+from datetime import datetime
+
+
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+mc = 0
 
 class GooglySocketProtocol(WebSocketServerProtocol):
 
@@ -22,15 +29,37 @@ class GooglySocketProtocol(WebSocketServerProtocol):
         if isBinary:
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
-            print("Received Image! Length {0}".format(len(payload)))
+            start=datetime.now()
+            global mc
+            mc += 1
             image_string = StringIO(base64.b64decode(payload[23:]))
             pil_image = Image.open(image_string)
 
             cv_img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
-            cv2.imshow("test", cv_img)
-            cv2.waitKey(0)
-        # echo back message verbatim
-        self.sendMessage("got it!", isBinary)
+            gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+            allEyes = []
+
+            for (x,y,w,h) in faces:
+                cv2.rectangle(cv_img,(x,y),(x+w,y+h),(255,0,0),2)
+                roi_gray = gray[y:y+h, x:x+w]
+                roi_color = cv_img[y:y+h, x:x+w]
+                eyes = eye_cascade.detectMultiScale(roi_gray)
+                for(ex, ey, ew, eh) in eyes:
+                    eyeDict = {"x":x, "y":y, "w":w, "h":h,
+                    "ex": ex, "ey": ey, "ew": ew, "eh": eh}
+                    allEyes.append(eyeDict)        
+                    cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            
+            if(len(allEyes) > 0):
+                
+                eyesDto = json.dumps(allEyes)
+                self.sendMessage(eyesDto)
+                cv2.imwrite("tests/img{0}.jpg".format(mc), cv_img)
+                print ("{0} ms".format(datetime.now()-start))
+
+        #self.sendMessage("got it!", isBinary)
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))

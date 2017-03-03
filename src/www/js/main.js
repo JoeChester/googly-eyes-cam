@@ -4,9 +4,11 @@ var ip;
 
 var video = document.getElementById('video');
 var photo = document.getElementById('photo');
+var debugCanvas = document.getElementById('debugCanvas');
 var x3dElem = document.getElementById('x3dom');
 var x3dCanvas;
 var ctx = photo.getContext('2d');
+var dCtx = debugCanvas.getContext('2d');
 
 var socket = null;
 var isOpen = false;
@@ -30,29 +32,20 @@ function jqUpdateSize(){
     $('.fullscreen').attr('width', width);       
 }
 
-function snapshot(){
-
+function video2Canvas(){
     var _videoWidth = video.videoWidth;
     var _videoHeight = video.videoHeight;
     var videoRatio = _videoWidth / _videoHeight;
-    console.log(videoRatio);
-
     var currentHeight = $('#video').innerHeight();
-    console.log(currentHeight);
-
     var currentWidth = videoRatio * currentHeight;
-    console.log(currentWidth);
-
     var anchorX = (width / 2) - (currentWidth / 2);
-    console.log(anchorX);
-
-
     ctx.drawImage(video, anchorX, 0, currentWidth, currentHeight);
-    //x3dCanvas = x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
-    //ctx.drawImage(x3dCanvas, 0, 0, width, height);
+}
 
-    sendToServer();
-
+function snapshot(){
+    video2Canvas();
+    x3dCanvas = x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
+    ctx.drawImage(x3dCanvas, 0, 0, width, height);
 }
 
 function settings(){
@@ -82,6 +75,15 @@ function saveToServer(){
 }
 
 // Web Socket Functions
+function doStream(){
+    if(isOpen){
+        if(socket.bufferedAmount == 0){
+            video2Canvas();
+            sendToServer();
+        }
+    }
+}
+
 function sendToServer(){
     var dataURL = photo.toDataURL("image/jpeg", 0.5);
     socket.send(dataURL);
@@ -89,20 +91,42 @@ function sendToServer(){
 
 function handleOpen(){
     console.log("Connected to Websocket!");
-    isopen = true;
+    isOpen = true;
 }
 
 function handleMessage(event){
-    console.log(event);
     if (typeof event.data == "string") {
-        console.log("Text message received: " + event.data);
+        var allEyes = JSON.parse(event.data);
+        console.log(allEyes);
+        dCtx.clearRect(0,0, debugCanvas.width, debugCanvas.height);
+        for(var i in allEyes){
+            dCtx.beginPath();
+            dCtx.arc(
+                allEyes[i].x + allEyes[i].ex,
+                allEyes[i].y + allEyes[i].ey,
+                (allEyes[i].ew + allEyes[i].ew)/4 , 0, 2 * Math.PI, 
+                false
+            );
+            dCtx.fillStyle = 'green';
+            dCtx.fill();
+            dCtx.lineWidth = 3;
+            dCtx.strokeStyle = '#FF3300';
+            dCtx.stroke();
+        }
     }
+}
+
+function debugSquare(){
+    var myW = 10;
+    dCtx.strokeStyle = '#FF3300';
+    dCtx.rect(debugCanvas.width/2 - (myW/2), debugCanvas.height/2 - (myW/2), myW, myW );
+    dCtx.stroke();
 }
 
 function handleClose(event){
     console.log("Connection closed.");
     socket = null;
-    isopen = false;
+    isOpen = false;
 }
 
 function connect(ip){
@@ -125,3 +149,5 @@ if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         video.play();
     });
 }
+
+setInterval(doStream, 100);
