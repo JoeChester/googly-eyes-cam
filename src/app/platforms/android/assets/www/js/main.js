@@ -15,6 +15,8 @@ var isOpen = false;
 
 var saveNextFrame = false;
 
+var localTracker;
+
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -95,10 +97,14 @@ function takePictureCallback(picture) {
             saveNextFrame = false;
             savePhoto();
         }
+        if(rs){
+            sendToServer();
+        } else {
+            localTracking();
+        }
+        
     }
     img.src = picture;
-    sendToServer();
-    
 }
 
 function takePhoto() {
@@ -106,7 +112,7 @@ function takePhoto() {
         maxWidth: width,
         maxHeight: height
     })){
-        console.error("unable to take a photo, trying again!");
+        //console.error("unable to take a photo, trying again!");
         setTimeout(takePhoto, 500);
     }
 }
@@ -146,6 +152,18 @@ function doStream() {
     }
 }
 
+function localTracking(){
+    console.log("localTracking()");
+    tracking.track('#photo', localTracker);
+}
+
+function localTrackingResults(localEyes){
+    console.log("found " + localEyes.data.length + " eyes locally!");
+    var allEyes = convertLocalTrackingFormat(localEyes.data);
+    drawDebugSquares(allEyes);
+    takePhoto();
+}
+
 function sendToServer() {
     var dataURL = photo.toDataURL("image/jpeg", 0.5);
     if (isOpen) {
@@ -170,7 +188,23 @@ function handleOpen() {
     takePhoto();
 }
 
+function convertLocalTrackingFormat(localEyes){
+    var allEyes = [];
+    for(var i in localEyes){
+        var eye = {};
+        eye.x = 0;
+        eye.y = 0;
+        eye.ex = localEyes[i].x;
+        eye.ey = localEyes[i].y;
+        eye.ew = localEyes[i].width;
+        eye.eh = localEyes[i].height;
+        allEyes.push(eye);
+    }
+    return allEyes;
+}
+
 function drawDebugSquares(allEyes){
+    dCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
     for (var i in allEyes) {
         dCtx.lineWidth = 3;
         dCtx.strokeStyle = '#FF3300';
@@ -185,11 +219,10 @@ function handleMessage(event) {
     if (typeof event.data == "string") {
         var allEyes = JSON.parse(event.data);
         console.log("found "  + allEyes.length +  " eyes.");
-        dCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
         drawDebugSquares(allEyes);
     }
     //Send the next frame after this one was received!
-    doStream();
+    takePhoto();
 }
 
 function debugSquare() {
@@ -246,17 +279,14 @@ document.addEventListener('deviceready', function () {
 
     ip = getParameterByName("ip");
     rs = getParameterByName("rs") == "true";
-    connect(ip);
-    //setInterval(doStream, 100);
 
+    if(rs){
+        connect(ip);
+    } else { //disable resync/connection button
+        $('#statusButton').addClass('hidden');
+        localTracker = new tracking.ObjectTracker(['face', 'eye']);
+        localTracker.setStepSize(1.7);
+        localTracker.on('track', localTrackingResults);
+        takePhoto();
+    }
 }, false);
-
-// Camera Live Preview
-/*
-if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
-        video.src = window.URL.createObjectURL(stream);
-        video.play();
-    });
-}
-*/
