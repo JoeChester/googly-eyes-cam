@@ -10,16 +10,39 @@ function getParameterByName(name, url) {
 
 function ok(){
     var ip = $("#ip").val();
-    if(!ip || ip == ""){
+    var rs = $("#rs").prop("checked");
+
+    if(!ip || ip == "" && rs){
         $("#ip").addClass("settings-error");
         $("#ip").focus();
         return;
     }
+
+    if (typeof(Storage) !== "undefined") {
+        localStorage.setItem("ip", ip);
+        localStorage.setItem("rs", rs);
+    }
+    
     console.log(ip);
-    window.location = "index.html?ip=" + ip;
+    console.log(rs);
+    window.location = "index.html?ip=" + ip + "&rs=" + rs;
 }
 
 $(function(){
-    $("#ip").val(getParameterByName("ip") || "localhost:9000");
+
+    var ip;
+    var rs = false;
+
+    if (typeof(Storage) !== "undefined") {
+        ip = localStorage.getItem("ip");
+        rs = localStorage.getItem("rs") == "true";
+    }
+
+    if(!ip) ip = getParameterByName("ip");
+    if(!rs) rs = getParameterByName("rs")  == "true";
+
+    $("#ip").val(ip || "localhost:9000");
+    $("#rs").prop("checked", rs);
+    
     $("#ip").focus();
 });

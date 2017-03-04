@@ -15,7 +15,6 @@ from datetime import datetime
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-mc = 0
 
 class GooglySocketProtocol(WebSocketServerProtocol):
 
@@ -29,9 +28,6 @@ class GooglySocketProtocol(WebSocketServerProtocol):
         if isBinary:
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
-            start=datetime.now()
-            global mc
-            mc += 1
             image_string = StringIO(base64.b64decode(payload[23:]))
             pil_image = Image.open(image_string)
 
@@ -51,13 +47,9 @@ class GooglySocketProtocol(WebSocketServerProtocol):
                     "ex": ex, "ey": ey, "ew": ew, "eh": eh}
                     allEyes.append(eyeDict)        
                     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-            
-            if(len(allEyes) > 0):
-                
-                eyesDto = json.dumps(allEyes)
-                self.sendMessage(eyesDto)
-                cv2.imwrite("tests/img{0}.jpg".format(mc), cv_img)
-                print ("{0} ms".format(datetime.now()-start))
+    
+            eyesDto = json.dumps(allEyes)
+            self.sendMessage(eyesDto)
 
         #self.sendMessage("got it!", isBinary)
 

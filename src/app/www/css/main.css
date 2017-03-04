@@ -39,8 +39,24 @@ body {
 
 h2{
   color: #FFFFFF;
-  font-weight: bold;  
+  font-weight: bold;
+  font-size: 1rem;  
+  border-bottom: 0.5rem;
 }
+
+label{
+    font-size: 1rem;
+    color: #FFFFFF;
+}
+
+.switch label input[type=checkbox]:checked+.lever:after {
+    background-color: #ffa000;
+}
+
+.switch label input[type=checkbox]:checked+.lever {
+    background-color: #ffb300;
+}
+
 
 #ip{
     color: #FFFFFF !important;
@@ -53,6 +69,11 @@ h2{
 
 .header{
     text-align: center;
+}
+
+.fake-s2{
+    width: 33%;
+    height: auto;
 }
 
 .button-container{
@@ -112,7 +133,7 @@ html, body{
 }
 
 #photo{
-    z-index: 6;
+    z-index: 2;
     display: none;
 }
 

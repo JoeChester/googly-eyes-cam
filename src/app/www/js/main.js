@@ -1,6 +1,7 @@
 var width;
 var height;
 var ip;
+var rs;
 
 var photo = document.getElementById('photo');
 var debugCanvas = document.getElementById('debugCanvas');
@@ -12,7 +13,7 @@ var dCtx = debugCanvas.getContext('2d');
 var socket = null;
 var isOpen = false;
 
-var CameraPlus;
+var saveNextFrame = false;
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
@@ -33,6 +34,7 @@ function jqUpdateSize() {
     $('.fullscreen').attr('width', width);
 }
 
+//Deprecated Function,  still here as lookup
 function video2CanvasOld() {
     var _videoWidth = video.videoWidth;
     var _videoHeight = video.videoHeight;
@@ -43,24 +45,35 @@ function video2CanvasOld() {
     ctx.drawImage(video, anchorX, 0, currentWidth, currentHeight);
 }
 
-function video2Canvas() {
-    /*
-    CameraPreview.takePicture({
-        maxWidth: width,
-        maxHeight: height
-    });
-    */
-}
-
-function snapshot() {
-    video2Canvas();
+//Deprecated Function,  still here as lookup
+function snapshotOld() {
+    video2CanvasOld();
     x3dCanvas = x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
     ctx.drawImage(x3dCanvas, 0, 0, width, height);
 }
 
-function takePhotoCallback(picture) {
-    var image = document.getElementById('debugImage');
-    image.src = picture;
+function video2Canvas() {
+    CameraPreview.takePicture({
+        maxWidth: width,
+        maxHeight: height
+    });
+}
+
+function takePictureCallback(picture) {
+    var dbg_img = document.getElementById('debugImage');
+    dbg_img.src = picture;
+
+    var img = new Image();
+    img.onload = function() {
+        ctx.drawImage(this, 0, 0, photo.width, photo.height);
+    }
+    img.src = picture;
+
+    sendToServer();
+    if(saveNextFrame){
+        saveNextFrame = false;
+        //TODO: Combine Canvases and Save // Screenshot maybe?
+    }
 }
 
 function takePhoto() {
@@ -71,7 +84,7 @@ function takePhoto() {
 }
 
 function settings() {
-    window.location = "settings.html"
+    window.location = "settings.html?ip=" + ip + "&rs=" + rs;
 }
 
 function resetWhite() {
@@ -102,14 +115,15 @@ function doStream() {
     if (isOpen) {
         if (socket.bufferedAmount == 0) {
             video2Canvas();
-            sendToServer();
         }
     }
 }
 
 function sendToServer() {
     var dataURL = photo.toDataURL("image/jpeg", 0.5);
-    socket.send(dataURL);
+    if (isOpen) {
+        socket.send(dataURL);
+    }
 }
 
 function handleOpen() {
@@ -137,6 +151,8 @@ function handleMessage(event) {
             dCtx.stroke();
         }
     }
+    //Send the next frame after this one was received!
+    doStream();
 }
 
 function debugSquare() {
@@ -162,8 +178,7 @@ function connect(ip) {
 $(document).ready(jqUpdateSize);
 $(window).resize(jqUpdateSize);
 
-ip = getParameterByName("ip");
-connect(ip);
+
 
 document.addEventListener('deviceready', function () {
 
@@ -179,10 +194,13 @@ document.addEventListener('deviceready', function () {
     });
     console.log('camera started!');
 
-    CameraPreview.setOnPictureTakenHandler(takePhotoCallback);
+    CameraPreview.setOnPictureTakenHandler(takePictureCallback);
 
     console.log('camera callback handler set!');
-    
+
+    ip = getParameterByName("ip");
+    rs = getParameterByName("rs") == "true";
+    connect(ip);
     //setInterval(doStream, 100);
 
 }, false);
