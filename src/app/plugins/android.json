@@ -1,0 +1,18 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-camera-preview": {
+            "PACKAGE_NAME": "de.crossoak.googlyeyes"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "de.crossoak.googlyeyes"
+        }
+    },
+    "dependent_plugins": {}
+}

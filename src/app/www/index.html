@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Googly Eyes Cam v.0.0.1</title>
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+</head>
+
+<body>
+    <x3d id="x3dompx" height="100px" width="100px">
+        <scene>
+            <viewpoint id="viewport" position="0 0 10"></viewpoint>
+            <transform translation="0 0 0" rotation="0 1 0 3.14159265359" id="eyeball1">
+                <inline nameSpaceName="Eyeball" mapDEFToID="true" url="eyeball.x3d"> </inline>
+            </transform>
+        </scene>
+    </x3d>
+    <canvas id="photo" width="960" height="720" class="fullscreen"></canvas>
+    <canvas id="debugCanvas" width="960" height="720" class="fullscreen"></canvas>
+
+    <div class="button-container">
+        <button class="btn-floating btn-medium waves-effect waves-light amber darken-2 button-left" onclick="settings()">
+            <i class="fa fa-gear fa-lg icon-medium"></i>
+        </button>
+
+        <button class="btn-floating btn-large waves-effect waves-light light-blue darken-2" onclick="takePhoto()">
+            <i class="fa fa-camera-retro fa-lg icon-large"></i>
+        </button>
+
+        <img src="HitokageDh.png" id="debugImage">
+
+        <!--         
+        <div class="fixed-action-btn button-right-menu-popup">
+            <button class="btn-floating btn-medium waves-effect waves-light amber button-right" onclick="eye()">
+                <i class="fa fa-eye fa-lg icon-medium"></i>
+            </button>
+            <ul>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-1 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-2 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-3 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+                <li>
+                    <button class="btn-floating btn-medium waves-effect waves-light red darken-4 button-right-menu" onclick="eye()">
+                        <i class="fa fa-eye fa-lg icon-medium"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+        -->
+
+    </div>
+
+    <!-- ___________ SCRIPTS ___________ -->
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="CameraPreview.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+    <script src="js/x3dom.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
