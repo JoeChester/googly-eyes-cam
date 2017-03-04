@@ -59,6 +59,31 @@ function video2Canvas() {
     });
 }
 
+function snapshot(){
+    saveNextFrame = true;
+    takePhoto();
+}
+
+function savePhoto(){
+    $('.button-container').addClass('hidden');
+    $('#photo').removeClass('hidden');
+    setTimeout(function(){
+        window.canvas2ImagePlugin.saveImageDataToLibrary(
+            function(msg){
+                console.log(msg);
+                $('.button-container').removeClass('hidden');
+                $('#photo').addClass('hidden');
+            },
+            function(err){
+                console.log(err);
+                $('.button-container').removeClass('hidden');
+                $('#photo').addClass('hidden');
+            },
+            document.getElementById('photo')
+        );
+    }, 50);    
+}
+
 function takePictureCallback(picture) {
     var dbg_img = document.getElementById('debugImage');
     dbg_img.src = picture;
@@ -66,21 +91,24 @@ function takePictureCallback(picture) {
     var img = new Image();
     img.onload = function() {
         ctx.drawImage(this, 0, 0, photo.width, photo.height);
+        if(saveNextFrame){
+            saveNextFrame = false;
+            savePhoto();
+        }
     }
     img.src = picture;
-
     sendToServer();
-    if(saveNextFrame){
-        saveNextFrame = false;
-        //TODO: Combine Canvases and Save // Screenshot maybe?
-    }
+    
 }
 
 function takePhoto() {
-    CameraPreview.takePicture({
+    if(!CameraPreview.takePicture({
         maxWidth: width,
         maxHeight: height
-    });
+    })){
+        console.error("unable to take a photo, trying again!");
+        setTimeout(takePhoto, 500);
+    }
 }
 
 function settings() {
@@ -94,7 +122,7 @@ function resetWhite() {
     ctx.fill();
 }
 
-// POST to PHP saver script (ul.php)
+// POST to PHP saver script (ul.php) (DEBUG/DEV function)
 function saveToServer() {
     var dataURL = photo.toDataURL();
 
@@ -111,7 +139,6 @@ function saveToServer() {
 
 // Web Socket Functions
 function doStream() {
-    console.log("doSteam()")
     if (isOpen) {
         if (socket.bufferedAmount == 0) {
             video2Canvas();
@@ -126,30 +153,40 @@ function sendToServer() {
     }
 }
 
+function statusButton(connected){
+    $('#statusButton').removeClass('red');
+    $('#statusButton').removeClass('green');
+    if(connected){
+        $('#statusButton').addClass('green');
+    } else {
+        $('#statusButton').addClass('red');
+    }
+}
+
 function handleOpen() {
     console.log("Connected to Websocket!");
     isOpen = true;
+    statusButton(true);
+    takePhoto();
+}
+
+function drawDebugSquares(allEyes){
+    for (var i in allEyes) {
+        dCtx.lineWidth = 3;
+        dCtx.strokeStyle = '#FF3300';
+        dCtx.beginPath();
+        //IMPORTANT! Eye Center is ((x+ex) + (x+ex+ew)/2)!!!!!!!
+        dCtx.rect(allEyes[i].x + allEyes[i].ex ,allEyes[i].y + allEyes[i].ey, allEyes[i].ew, allEyes[i].eh);
+        dCtx.stroke();
+    }
 }
 
 function handleMessage(event) {
     if (typeof event.data == "string") {
         var allEyes = JSON.parse(event.data);
-        console.log(allEyes);
+        console.log("found "  + allEyes.length +  " eyes.");
         dCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
-        for (var i in allEyes) {
-            dCtx.beginPath();
-            dCtx.arc(
-                allEyes[i].x + allEyes[i].ex,
-                allEyes[i].y + allEyes[i].ey,
-                (allEyes[i].ew + allEyes[i].ew) / 4, 0, 2 * Math.PI,
-                false
-            );
-            dCtx.fillStyle = 'green';
-            dCtx.fill();
-            dCtx.lineWidth = 3;
-            dCtx.strokeStyle = '#FF3300';
-            dCtx.stroke();
-        }
+        drawDebugSquares(allEyes);
     }
     //Send the next frame after this one was received!
     doStream();
@@ -164,6 +201,7 @@ function debugSquare() {
 
 function handleClose(event) {
     console.log("Connection closed.");
+    statusButton(false);
     socket = null;
     isOpen = false;
 }
@@ -178,7 +216,15 @@ function connect(ip) {
 $(document).ready(jqUpdateSize);
 $(window).resize(jqUpdateSize);
 
-
+function resync(){
+    if(socket && isOpen){
+        socket.close()
+    }
+    setTimeout(function(){
+        connect(ip);
+    }, 200)
+    
+}
 
 document.addEventListener('deviceready', function () {
 

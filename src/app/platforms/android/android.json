@@ -15,6 +15,10 @@
                         {
                             "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Canvas2ImagePlugin\"><param name=\"android-package\" value=\"org.devgeeks.Canvas2ImagePlugin.Canvas2ImagePlugin\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -48,6 +52,12 @@
                             "xml": "<activity android:name=\"com.cordovaplugincamerapreview.CameraActivity\" android:screenOrientation=\"portrait\" android:theme=\"@style/CameraPreviewTheme\" />",
                             "count": 1
                         }
+                    ],
+                    "/*": [
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+                            "count": 1
+                        }
                     ]
                 }
             }
@@ -59,6 +69,12 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "de.crossoak.googlyeyes"
+        },
+        "cordova-mm-canvas2image": {
+            "PACKAGE_NAME": "de.crossoak.googlyeyes"
+        },
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "de.crossoak.googlyeyes"
         }
     },
     "dependent_plugins": {},
@@ -68,6 +84,13 @@
             "id": "cordova-plugin-camera-preview.CameraPreview",
             "clobbers": [
                 "CameraPreview"
+            ]
+        },
+        {
+            "file": "plugins/cordova-mm-canvas2image/www/Canvas2ImagePlugin.js",
+            "id": "cordova-mm-canvas2image.Canvas2ImagePlugin",
+            "clobbers": [
+                "window.canvas2ImagePlugin"
             ]
         }
     ]

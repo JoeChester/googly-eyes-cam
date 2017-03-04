@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <!-- 
     <x3d id="x3dompx" height="100px" width="100px">
         <scene>
             <viewpoint id="viewport" position="0 0 10"></viewpoint>
@@ -18,7 +19,8 @@
             </transform>
         </scene>
     </x3d>
-    <canvas id="photo" width="960" height="720" class="fullscreen"></canvas>
+    -->
+    <canvas id="photo" width="960" height="720" class="fullscreen hidden"></canvas>
     <canvas id="debugCanvas" width="960" height="720" class="fullscreen"></canvas>
 
     <div class="button-container">
@@ -26,50 +28,24 @@
             <i class="fa fa-gear fa-lg icon-medium"></i>
         </button>
 
-        <button class="btn-floating btn-large waves-effect waves-light light-blue darken-2" onclick="takePhoto()">
+        <button class="btn-floating btn-large waves-effect waves-light light-blue darken-2" onclick="snapshot()">
             <i class="fa fa-camera-retro fa-lg icon-large"></i>
         </button>
 
+        <button id="statusButton" class="btn-floating btn-medium waves-effect waves-light  red darken-3 button-right" onclick="resync()">
+            <i class="fa fa-refresh fa-lg icon-medium"></i>
+        </button>
+
         <img src="gec_icon.png" id="debugImage">
-
-        <!--         
-        <div class="fixed-action-btn button-right-menu-popup">
-            <button class="btn-floating btn-medium waves-effect waves-light amber button-right" onclick="eye()">
-                <i class="fa fa-eye fa-lg icon-medium"></i>
-            </button>
-            <ul>
-                <li>
-                    <button class="btn-floating btn-medium waves-effect waves-light red darken-1 button-right-menu" onclick="eye()">
-                        <i class="fa fa-eye fa-lg icon-medium"></i>
-                    </button>
-                </li>
-                <li>
-                    <button class="btn-floating btn-medium waves-effect waves-light red darken-2 button-right-menu" onclick="eye()">
-                        <i class="fa fa-eye fa-lg icon-medium"></i>
-                    </button>
-                </li>
-                <li>
-                    <button class="btn-floating btn-medium waves-effect waves-light red darken-3 button-right-menu" onclick="eye()">
-                        <i class="fa fa-eye fa-lg icon-medium"></i>
-                    </button>
-                </li>
-                <li>
-                    <button class="btn-floating btn-medium waves-effect waves-light red darken-4 button-right-menu" onclick="eye()">
-                        <i class="fa fa-eye fa-lg icon-medium"></i>
-                    </button>
-                </li>
-            </ul>
-        </div>
-        -->
-
     </div>
 
     <!-- ___________ SCRIPTS ___________ -->
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="CameraPreview.js"></script>
+    <script type="text/javascript" src="Canvas2ImagePlugin.js"></script>
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/materialize.min.js"></script>
-    <script src="js/x3dom.js"></script>
+    <!-- <script src="js/x3dom.js"></script> -->
     <script src="js/main.js"></script>
 </body>
 

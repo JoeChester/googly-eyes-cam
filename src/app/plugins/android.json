@@ -12,6 +12,12 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "de.crossoak.googlyeyes"
+        },
+        "cordova-mm-canvas2image": {
+            "PACKAGE_NAME": "de.crossoak.googlyeyes"
+        },
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "de.crossoak.googlyeyes"
         }
     },
     "dependent_plugins": {}

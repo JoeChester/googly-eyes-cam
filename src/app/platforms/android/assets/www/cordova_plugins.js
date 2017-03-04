@@ -6,6 +6,13 @@ module.exports = [
         "clobbers": [
             "CameraPreview"
         ]
+    },
+    {
+        "file": "plugins/cordova-mm-canvas2image/www/Canvas2ImagePlugin.js",
+        "id": "cordova-mm-canvas2image.Canvas2ImagePlugin",
+        "clobbers": [
+            "window.canvas2ImagePlugin"
+        ]
     }
 ];
 module.exports.metadata = 

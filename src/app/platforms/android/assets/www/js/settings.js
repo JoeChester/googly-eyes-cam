@@ -31,7 +31,7 @@ function ok(){
 $(function(){
 
     var ip;
-    var rs = false;
+    var rs = true;
 
     if (typeof(Storage) !== "undefined") {
         ip = localStorage.getItem("ip");
@@ -39,9 +39,9 @@ $(function(){
     }
 
     if(!ip) ip = getParameterByName("ip");
-    if(!rs) rs = getParameterByName("rs")  == "true";
+    if(!rs) rs = getParameterByName("rs") == "true";
 
-    $("#ip").val(ip || "localhost:9000");
+    $("#ip").val(ip || "192.168.2.63:9000");
     $("#rs").prop("checked", rs);
     
     $("#ip").focus();

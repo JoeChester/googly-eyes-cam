@@ -28,6 +28,7 @@ class GooglySocketProtocol(WebSocketServerProtocol):
         if isBinary:
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
+            print("Picture Received!")
             image_string = StringIO(base64.b64decode(payload[23:]))
             pil_image = Image.open(image_string)
 
@@ -38,7 +39,7 @@ class GooglySocketProtocol(WebSocketServerProtocol):
             allEyes = []
 
             for (x,y,w,h) in faces:
-                cv2.rectangle(cv_img,(x,y),(x+w,y+h),(255,0,0),2)
+                #cv2.rectangle(cv_img,(x,y),(x+w,y+h),(255,0,0),2)
                 roi_gray = gray[y:y+h, x:x+w]
                 roi_color = cv_img[y:y+h, x:x+w]
                 eyes = eye_cascade.detectMultiScale(roi_gray)
@@ -46,7 +47,7 @@ class GooglySocketProtocol(WebSocketServerProtocol):
                     eyeDict = {"x":x, "y":y, "w":w, "h":h,
                     "ex": ex, "ey": ey, "ew": ew, "eh": eh}
                     allEyes.append(eyeDict)        
-                    cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+                    #cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
     
             eyesDto = json.dumps(allEyes)
             self.sendMessage(eyesDto)

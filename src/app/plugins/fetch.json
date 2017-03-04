@@ -18,10 +18,20 @@
     },
     "cordova-plugin-compat": {
         "source": {
-            "type": "registry",
-            "id": "cordova-plugin-compat"
+            "type": "git",
+            "url": "https://github.com/apache/cordova-plugin-compat.git",
+            "subdir": "."
         },
-        "is_top_level": false,
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-mm-canvas2image": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/danwilson/Canvas2ImagePlugin.git",
+            "subdir": "."
+        },
+        "is_top_level": true,
         "variables": {}
     }
 }

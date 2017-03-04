@@ -134,7 +134,6 @@ html, body{
 
 #photo{
     z-index: 2;
-    display: none;
 }
 
 #debugCanvas{

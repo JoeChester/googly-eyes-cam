@@ -1,1 +1,1 @@
-adb logcat chromium:V *:S
+adb logcat chromium:V Canvas2ImagePlugin:V *:S

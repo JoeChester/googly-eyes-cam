@@ -340,14 +340,14 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public void takePicture(final double maxWidth, final double maxHeight){
+  public boolean takePicture(final double maxWidth, final double maxHeight){
     Log.d(TAG, "picture taken");
 
     final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
     if(mPreview != null) {
 
       if(!canTakePicture)
-        return;
+        return false;
 
       canTakePicture = false;
 
@@ -401,7 +401,9 @@ public class CameraActivity extends Fragment {
       });
     } else {
       canTakePicture = true;
+      return false;
     }
+    return true;
   }
 
   private void generatePictureFromView(final Bitmap originalPicture) {
@@ -422,7 +424,7 @@ public class CameraActivity extends Fragment {
             @Override
             public void run() {
               cameraLoader.setVisibility(View.INVISIBLE);
-              pictureView.setImageBitmap(null);
+              //pictureView.setImageBitmap(null);
             }
           });
         } catch (Exception e) {
@@ -431,7 +433,7 @@ public class CameraActivity extends Fragment {
             @Override
             public void run() {
               cameraLoader.setVisibility(View.INVISIBLE);
-              pictureView.setImageBitmap(null);
+              //pictureView.setImageBitmap(null);
             }
           });
         }
