@@ -1,13 +1,11 @@
+//Three.js core objects
 var scene3, camera3, renderer3, light3;
-var earthRotY = 0.007;
-var earthRadius = 25;
-var earthMesh, tmpMesh;
-var mouse = {};
+var tmpMesh;
 
 //Eye 3D Mesh objects
 var eyeTexture, eyeMaterial, eyeGeometry;
 var eyeRadius = 25;
-
+var maxEyeCount = 20;
 
 //Premise: Just Initialize like 20 eyes on startup or so..
 var activeEyePool = [];
@@ -63,7 +61,7 @@ function initEyes(){
 		color: 0xffffff, 
 		specular: 0x050505,
 		shininess: 50,
-		map: earthTexture
+		map: eyeTexture
 	} );
     eyeGeometry = new THREE.SphereGeometry(eyeRadius, 16, 16);
 
@@ -71,7 +69,7 @@ function initEyes(){
     var faceVertexUvs = eyeGeometry.faceVertexUvs[0];
 	for ( i = 0; i < faceVertexUvs.length; i ++ ) {
 		var uvs = faceVertexUvs[i];
-		var face = earthGeometry.faces[i];
+		var face = eyeGeometry.faces[i];
 		for ( var j = 0; j < 3; j ++ ) {
 			uvs[j].x = face.vertexNormals[j].x * 0.5 + 0.5;
 			uvs[j].y = face.vertexNormals[j].y * 0.5 + 0.5;
@@ -87,10 +85,9 @@ function createEye(){
     //around the world axis later
     eyeMesh.rotateY(-0.2); 
     //TODO: Start with random Z rotation for each eye!
-    inactiveEyes.push(eyeMesh);
+    inactiveEyePool.push(eyeMesh);
     scene3.add(eyeMesh)
 }
-
 
 function initPlane() {
     // The plane needs to be large to be sure it'll always intersect
@@ -126,17 +123,12 @@ function hideInactiveEyes(){
 }
 
 function moveEye(eyeMesh, pointX, pointY){
-    
-}
+    // x y position with [0,0] in the center of the document
+    // and ranging from -1.0 to +1.0 with `y` axis inverted.
+    pointX = (pointX / window.innerWidth) * 2 - 1;
+    pointY = - (pointY / window.innerHeight) * 2 + 1;
 
-// Update position of objects in the scene
-function update() {
-    synchronizePools();
-    hideInactiveEyes();
-
-    
-    //TODO: DO this for every eye!
-    var vector = new THREE.Vector3(mouse.x, mouse.y, 0.0);
+    var vector = new THREE.Vector3(pointX, pointY, 0.0);
     // Unproject camera distortion (fov, aspect ratio)
     vector.unproject(camera3);
     var norm = vector.sub(camera3.position).normalize();
@@ -146,9 +138,24 @@ function update() {
     var intersects = ray.intersectObject(tmpMesh);
 
     var point = intersects[0].point;
-    earthMesh.position.x = point.x;
-    earthMesh.position.y = point.y;
-    earthMesh.rotateOnAxis(new THREE.Vector3(0.3,0,1).normalize(), 2 * Math.PI/180);
+    eyeMesh.position.x = point.x;
+    eyeMesh.position.y = point.y;
+}
+
+// Update position of objects in the scene
+function update() {
+    synchronizePools();
+    hideInactiveEyes();
+    for(var i in eyeData){
+        moveEye(activeEyePool[i], (eyeData[i].x + eyeData[i].ex), (eyeData[i].y + eyeData[i].ey));
+    }
+    //Rotate all eye meshes!
+    for(var i in activeEyePool){
+        activeEyePool[i].rotateOnAxis(new THREE.Vector3(0.3,0,1).normalize(), 2 * Math.PI/180);
+    }
+    for(var i in inactiveEyePool){
+        inactiveEyePool[i].rotateOnAxis(new THREE.Vector3(0.3,0,1).normalize(), 2 * Math.PI/180);
+    }
 }
 
 // Redraw entire scene
@@ -160,24 +167,15 @@ function render() {
     requestAnimationFrame(render);
 }
 
-function onDocumentMouseMove(event) {
-    // Current mouse position with [0,0] in the center of the document
-    // and ranging from -1.0 to +1.0 with `y` axis inverted.
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-}
-
-function placeEarth(x,y){
-    mouse.x = (x / window.innerWidth) * 2 - 1;
-    mouse.y = - (y / window.innerHeight) * 2 + 1;
-}
-
 document.addEventListener('DOMContentLoaded', function(event) {
     // Initialize everything and start rendering
     init(window.innerWidth, window.innerHeight);
     initEyes();
     initLight();
     initPlane();
-    createEye();
+    for(var i = 0; i < maxEyeCount; i++){
+        createEye();
+    }
+    eyeData = demoEyes2;
     requestAnimationFrame(render);
 });
