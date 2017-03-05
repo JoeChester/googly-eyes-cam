@@ -4,7 +4,7 @@ var tmpMesh;
 
 //Eye 3D Mesh objects
 var eyeTexture, eyeMaterial, eyeGeometry;
-var eyeRadius = 25;
+var eyeRadius = 15;
 var maxEyeCount = 20;
 
 //Premise: Just Initialize like 20 eyes on startup or so..
@@ -13,6 +13,10 @@ var inactiveEyePool = [];
 
 var eyeData = [];
 var eyeCoordinates = [];
+
+var unityHeight; //Pixel width where eyes scale is 1
+
+var canvas3;
 
 var demoEyes2 = [
     {x: 0, ex: 100, y: 0, ey: 100, ew: 20, eh: 20},
@@ -37,10 +41,11 @@ function init(width, height) {
     camera3 = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
     // Set the camera to 400 units along `z` axis
     camera3.position.set(0, 0, 400);
-    renderer3 = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer3 = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     renderer3.setSize(width, height);
     renderer3.shadowMap.enabled = true;
     renderer3.domElement.id = "threejsCanvas";
+    //renderer3.domElement.className = "fullscreen";
     document.body.appendChild(renderer3.domElement);
 }
 
@@ -56,7 +61,7 @@ function initLight() {
 }
 
 function initEyes(){
-    eyeTexture = THREE.ImageUtils.loadTexture("eye_texture.jpg");
+    eyeTexture = THREE.ImageUtils.loadTexture(eye64);
     eyeMaterial = new THREE.MeshPhongMaterial( {
 		color: 0xffffff, 
 		specular: 0x050505,
@@ -84,7 +89,8 @@ function createEye(){
     //Do the "googly" rotation for the eye, so that it can rotate
     //around the world axis later
     eyeMesh.rotateY(-0.2); 
-    //TODO: Start with random Z rotation for each eye!
+    //Start each eye with random rotation
+    eyeMesh.rotateOnAxis(new THREE.Vector3(0.3,0,1).normalize(), (Math.random() * 360) * Math.PI/180);
     inactiveEyePool.push(eyeMesh);
     scene3.add(eyeMesh)
 }
@@ -122,7 +128,7 @@ function hideInactiveEyes(){
     }
 }
 
-function moveEye(eyeMesh, pointX, pointY){
+function moveEye(eyeMesh, pointX, pointY, scalingFactor){
     // x y position with [0,0] in the center of the document
     // and ranging from -1.0 to +1.0 with `y` axis inverted.
     pointX = (pointX / window.innerWidth) * 2 - 1;
@@ -136,10 +142,20 @@ function moveEye(eyeMesh, pointX, pointY){
     // two intersect. That's our 2D position in 3D coordinates.
     var ray = new THREE.Raycaster(camera3.position, norm);
     var intersects = ray.intersectObject(tmpMesh);
+    if(intersects){
+        if(intersects[0]){
+            var point = intersects[0].point;
+            eyeMesh.position.x = point.x;
+            eyeMesh.position.y = point.y;
+            eyeMesh.scale.x = scalingFactor;
+            eyeMesh.scale.y = scalingFactor;
+            eyeMesh.scale.z = scalingFactor;
+        }
+    }
+}
 
-    var point = intersects[0].point;
-    eyeMesh.position.x = point.x;
-    eyeMesh.position.y = point.y;
+function setEyeData(allEyes){
+    eyeData = allEyes;
 }
 
 // Update position of objects in the scene
@@ -147,7 +163,10 @@ function update() {
     synchronizePools();
     hideInactiveEyes();
     for(var i in eyeData){
-        moveEye(activeEyePool[i], (eyeData[i].x + eyeData[i].ex), (eyeData[i].y + eyeData[i].ey));
+        var pointX = ((eyeData[i].x + eyeData[i].ex) + (eyeData[i].x + eyeData[i].ex + eyeData[i].ew)) / 2;
+        var pointY = ((eyeData[i].y + eyeData[i].ey) + (eyeData[i].y + eyeData[i].ey + eyeData[i].eh)) / 2;
+        var scalingFactor = eyeData[i].eh / unityHeight;
+        moveEye(activeEyePool[i], pointX, pointY, scalingFactor);
     }
     //Rotate all eye meshes!
     for(var i in activeEyePool){
@@ -167,7 +186,7 @@ function render() {
     requestAnimationFrame(render);
 }
 
-document.addEventListener('DOMContentLoaded', function(event) {
+function initEye3D(){
     // Initialize everything and start rendering
     init(window.innerWidth, window.innerHeight);
     initEyes();
@@ -176,6 +195,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
     for(var i = 0; i < maxEyeCount; i++){
         createEye();
     }
-    eyeData = demoEyes2;
+    unityHeight = window.height * 0.075; //6% Unity width;
     requestAnimationFrame(render);
-});
+}

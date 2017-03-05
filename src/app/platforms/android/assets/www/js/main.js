@@ -15,6 +15,9 @@ var isOpen = false;
 
 var saveNextFrame = false;
 
+var pendingRequest = false;
+var isSavingPhoto = false;
+
 var localTracker;
 
 function getParameterByName(name, url) {
@@ -50,7 +53,7 @@ function video2CanvasOld() {
 //Deprecated Function,  still here as lookup
 function snapshotOld() {
     video2CanvasOld();
-    x3dCanvas = x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
+    x3dCanvas = document.getElementById('x3dom-x3dom-canvas');
     ctx.drawImage(x3dCanvas, 0, 0, width, height);
 }
 
@@ -67,23 +70,34 @@ function snapshot(){
 }
 
 function savePhoto(){
+    isSavingPhoto = true;
     $('.button-container').addClass('hidden');
     $('#photo').removeClass('hidden');
+
+    if(!canvas3){
+        canvas3 = document.getElementById('threejsCanvas');
+    }
+
+    ctx.drawImage(canvas3, 0, 0, width, height);
+
+    //small preview timeout
     setTimeout(function(){
         window.canvas2ImagePlugin.saveImageDataToLibrary(
             function(msg){
                 console.log(msg);
                 $('.button-container').removeClass('hidden');
                 $('#photo').addClass('hidden');
+                isSavingPhoto = false;
             },
             function(err){
                 console.log(err);
                 $('.button-container').removeClass('hidden');
                 $('#photo').addClass('hidden');
+                isSavingPhoto = false;
             },
             document.getElementById('photo')
-        );
-    }, 50);    
+        ); 
+    }, 50);
 }
 
 function takePictureCallback(picture) {
@@ -92,11 +106,15 @@ function takePictureCallback(picture) {
 
     var img = new Image();
     img.onload = function() {
-        ctx.drawImage(this, 0, 0, photo.width, photo.height);
+        //Dont Overdraw a saving photo request
+        if(!isSavingPhoto){
+            ctx.drawImage(this, 0, 0, photo.width, photo.height);
+        }
         if(saveNextFrame){
             saveNextFrame = false;
             savePhoto();
         }
+        pendingRequest = true;
         if(rs){
             sendToServer();
         } else {
@@ -113,7 +131,9 @@ function takePhoto() {
         maxHeight: height
     })){
         //console.error("unable to take a photo, trying again!");
-        setTimeout(takePhoto, 500);
+        if(!pendingRequest){
+            setTimeout(takePhoto, 500);
+        }
     }
 }
 
@@ -134,12 +154,13 @@ function saveToServer() {
 
     $.ajax({
         type: "POST",
-        url: "http://localhost/ul.php",
+        url: ip + "/kibucam/ul.php",
         data: {
             imgBase64: dataURL
         }
     }).done(function (o) {
         console.log('saved');
+        isSavingPhoto = false;
     });
 }
 
@@ -158,6 +179,7 @@ function localTracking(){
 }
 
 function localTrackingResults(localEyes){
+    pendingRequest = false;
     console.log("found " + localEyes.data.length + " eyes locally!");
     var allEyes = convertLocalTrackingFormat(localEyes.data);
     drawDebugSquares(allEyes);
@@ -216,10 +238,14 @@ function drawDebugSquares(allEyes){
 }
 
 function handleMessage(event) {
+    pendingRequest = false;
     if (typeof event.data == "string") {
         var allEyes = JSON.parse(event.data);
         console.log("found "  + allEyes.length +  " eyes.");
-        drawDebugSquares(allEyes);
+        //console.log(allEyes[0].eh + " : " + allEyes[0].ew);
+        //console.log(window.height + " : " + window.width);
+        //drawDebugSquares(allEyes);
+        setEyeData(allEyes);
     }
     //Send the next frame after this one was received!
     takePhoto();
@@ -260,6 +286,8 @@ function resync(){
 }
 
 document.addEventListener('deviceready', function () {
+
+    initEye3D();
 
     CameraPreview.startCamera({
         x: 0,

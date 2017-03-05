@@ -20,4 +20,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Eyeball: http://tf3dm.com/download-page.php?url=eyeball--33237
+
+
+THIRD PARTY SOFTWARE/LIBRARIES/FRAMEWORKS
+
+MATERIALIZECSS
+http://materializecss.com/
+
+APACHE CORDOVA
+https://cordova.apache.org/
+
+CORDOVA PLUGIN CANVAS2IMAGE (FORKED VERSION)
+https://github.com/danwilson/Canvas2ImagePlugin
+
+CORDOVA PLUGIN CAMERA-PREVIEW (IMPORTANT MODIFICATIONS WHERE MADE IN THIS PROJECT)
+https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview
+
+CORDOVA PLUGIN COMPAT
+https://github.com/apache/cordova-plugin-compat
+
+JQUERY
+https://jquery.com/
+
+THREE.JS
+https://threejs.org/
+
+TRACKING.JS 
+https://trackingjs.com/
+
+EYE TEXTURE
+http://stackoverflow.com/questions/21663923/mapping-image-onto-a-sphere-in-three-js
+
+OPEN CV
+http://opencv.org/
+
+AUTOBAHN.WS
+http://autobahn.ws/python/
