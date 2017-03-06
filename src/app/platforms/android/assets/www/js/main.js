@@ -20,9 +20,6 @@ var isSavingPhoto = false;
 
 var localTracker;
 
-//JSFEAT SETUPS
-var img_u8, ii_sum, ii_sqsum, ii_tilted, edg, ii_canny;
-
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -177,72 +174,72 @@ function doStream() {
 }
 
 function initLocalTracking(){
-    var w = width;
-    var h = height;
-    img_u8 = new jsfeat.matrix_t(w, h, jsfeat.U8_t | jsfeat.C1_t);
-    edg = new jsfeat.matrix_t(w, h, jsfeat.U8_t | jsfeat.C1_t);
-    ii_sum = new Int32Array((w+1)*(h+1));
-    ii_sqsum = new Int32Array((w+1)*(h+1));
-    ii_tilted = new Int32Array((w+1)*(h+1));
-    ii_canny = new Int32Array((w+1)*(h+1));
+    localTracker = new tracking.ObjectTracker(['face']);
+    localTracker.setInitialScale(4);
+    localTracker.setStepSize(2);
+    localTracker.setEdgesDensity(0.1);
+    localTracker.on('track', function(event) {
+        localTrackingResults(event.data);
+    });
 }
 
 function localTracking(imageData){
     console.log("localTracking()");
     //tracking.track('#photo', localTracker);
-    jsfeat.imgproc.grayscale(imageData.data, width, height, img_u8);
-    jsfeat.imgproc.equalize_histogram(img_u8, img_u8);
-    jsfeat.haar.edges_density = 0.13;
-    jsfeat.imgproc.compute_integral_image(img_u8, ii_sum, ii_sqsum, jsfeat.haar.frontalface.tilted ? ii_tilted : null);
-
-    var faces = jsfeat.haar.detect_multi_scale(ii_sum, ii_sqsum, ii_tilted, null, img_u8.cols, img_u8.rows, jsfeat.haar.frontalface, 1.15, 2);
-    faces = jsfeat.haar.group_rectangles(faces, 1);
-
-    var eyes = jsfeat.haar.detect_multi_scale(ii_sum, ii_sqsum, ii_tilted, null, img_u8.cols, img_u8.rows, jsfeat.haar.eye, 1.15, 2);
-    eyes = jsfeat.haar.group_rectangles(eyes, 1);
-    localTrackingResults(eyes, faces)
+    setTimeout(function(){
+        tracking.track('#photo', localTracker);
+    }, 0);   
 }
 
-function localTrackingResults(localEyes, localFaces){
+function localTrackingResults(localFaces){
     pendingRequest = false;
-    console.log("found " + localEyes.length + " eyes locally!");
-    console.log(localEyes.toString());
-    var allEyes = convertLocalTrackingFormat(localEyes, localFaces);
+    console.log("found " + localFaces.length + " faces locally!");
+    var allEyes = convertLocalTrackingFormat(localFaces);
     //drawDebugSquares(allEyes);
     setEyeData(allEyes);
     takePhoto();
 }
 
-function checkEyeInFace(eye, face){
-    if(eye.x > face.x && (eye.x + eye.width) < (face.x + face.width) && eye.y > face.y && (eye.y + eye.height) > (face.y + face.height)){
-        return true;
-    } else {
-        return false;
+function convertFaceFormat(localFaces){
+     var allEyes = [];
+    for(var i in localFaces){
+        var eye = {};
+        eye.x = 0;
+        eye.y = 0;
+        eye.ex = localFaces[i].x;
+        eye.ey = localFaces[i].y;
+        eye.ew = localFaces[i].width;
+        eye.eh = localFaces[i].height;
+        allEyes.push(eye);
     }
+    return allEyes;
 }
 
-function checkEyeInAllFaces(eye, faces){
-    for(var i in faces){
-        if(checkEyeInFace(eye, faces[i])){
-            return true;
-        }
-    }
-    return false;
-}
-
-function convertLocalTrackingFormat(localEyes, localFaces){
+function convertLocalTrackingFormat(localFaces){
     var allEyes = [];
-    for(var i in localEyes){
-        if(checkEyeInAllFaces(localEyes[i], localFaces)){
-            var eye = {};
-            eye.x = 0;
-            eye.y = 0;
-            eye.ex = localEyes[i].x;
-            eye.ey = localEyes[i].y;
-            eye.ew = localEyes[i].width;
-            eye.eh = localEyes[i].height;
-            allEyes.push(eye);
-        }
+    for(var i in localFaces){
+        var eyeLeft = {};
+        var eyeRight = {};
+        //Approximation of Eyes due to insufficient tracking
+        var unitX = (localFaces[i].width) / 8;
+        var unitY = (localFaces[i].height) / 4;
+
+        eyeLeft.x = 0;
+        eyeLeft.y = 0;
+        eyeLeft.ex = localFaces[i].x + (unitX*2);
+        eyeLeft.ey = localFaces[i].y + unitY;
+        eyeLeft.ew = unitX*2;
+        eyeLeft.eh = unitY;
+
+        eyeRight.x = 0;
+        eyeRight.y = 0;
+        eyeRight.ex = localFaces[i].x + (unitX*5);
+        eyeRight.ey = localFaces[i].y + unitY;
+        eyeRight.ew = unitX*2;
+        eyeRight.eh = unitY;
+
+        allEyes.push(eyeLeft);
+        allEyes.push(eyeRight);
     }
     return allEyes;
 }
@@ -332,6 +329,12 @@ function resync(){
 }
 
 document.addEventListener('deviceready', function () {
+
+    if(typeof(Worker) !== "undefined"){
+        console.log("WebWorker Supported!");
+    }else{
+        console.log("WebWorker not supported!");
+    }
 
     initEye3D();
 
