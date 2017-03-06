@@ -13,7 +13,7 @@ except:
 from datetime import datetime
 
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('haarcascade_face.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 class GooglySocketProtocol(WebSocketServerProtocol):
@@ -34,7 +34,7 @@ class GooglySocketProtocol(WebSocketServerProtocol):
 
             cv_img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
             gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+            faces = face_cascade.detectMultiScale(gray, 1.3, 5, 0 | cv2.CASCADE_SCALE_IMAGE, (100,100))
 
             allEyes = []
 
@@ -42,7 +42,7 @@ class GooglySocketProtocol(WebSocketServerProtocol):
                 #cv2.rectangle(cv_img,(x,y),(x+w,y+h),(255,0,0),2)
                 roi_gray = gray[y:y+h, x:x+w]
                 roi_color = cv_img[y:y+h, x:x+w]
-                eyes = eye_cascade.detectMultiScale(roi_gray)
+                eyes = eye_cascade.detectMultiScale(roi_gray, minSize=(20,20))
                 for(ex, ey, ew, eh) in eyes:
                     eyeDict = {"x":x, "y":y, "w":w, "h":h,
                     "ex": ex, "ey": ey, "ew": ew, "eh": eh}

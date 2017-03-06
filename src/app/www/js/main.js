@@ -188,7 +188,7 @@ function localTracking(imageData){
     //tracking.track('#photo', localTracker);
     setTimeout(function(){
         tracking.track('#photo', localTracker);
-    }, 0);   
+    }, 10);   
 }
 
 function localTrackingResults(localFaces){
@@ -329,12 +329,6 @@ function resync(){
 }
 
 document.addEventListener('deviceready', function () {
-
-    if(typeof(Worker) !== "undefined"){
-        console.log("WebWorker Supported!");
-    }else{
-        console.log("WebWorker not supported!");
-    }
 
     initEye3D();
 

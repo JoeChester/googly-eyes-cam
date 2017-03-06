@@ -188,7 +188,7 @@ function localTracking(imageData){
     //tracking.track('#photo', localTracker);
     setTimeout(function(){
         tracking.track('#photo', localTracker);
-    }, 0);   
+    }, 10);   
 }
 
 function localTrackingResults(localFaces){
