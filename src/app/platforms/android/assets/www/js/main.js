@@ -20,6 +20,9 @@ var isSavingPhoto = false;
 
 var localTracker;
 
+//JSFEAT SETUPS
+var img_u8, ii_sum, ii_sqsum, ii_tilted, edg, ii_canny;
+
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -118,7 +121,7 @@ function takePictureCallback(picture) {
         if(rs){
             sendToServer();
         } else {
-            localTracking();
+            localTracking(ctx.getImageData(0, 0, photo.width, photo.height));
         }
         
     }
@@ -173,17 +176,75 @@ function doStream() {
     }
 }
 
-function localTracking(){
-    console.log("localTracking()");
-    tracking.track('#photo', localTracker);
+function initLocalTracking(){
+    var w = width;
+    var h = height;
+    img_u8 = new jsfeat.matrix_t(w, h, jsfeat.U8_t | jsfeat.C1_t);
+    edg = new jsfeat.matrix_t(w, h, jsfeat.U8_t | jsfeat.C1_t);
+    ii_sum = new Int32Array((w+1)*(h+1));
+    ii_sqsum = new Int32Array((w+1)*(h+1));
+    ii_tilted = new Int32Array((w+1)*(h+1));
+    ii_canny = new Int32Array((w+1)*(h+1));
 }
 
-function localTrackingResults(localEyes){
+function localTracking(imageData){
+    console.log("localTracking()");
+    //tracking.track('#photo', localTracker);
+    jsfeat.imgproc.grayscale(imageData.data, width, height, img_u8);
+    jsfeat.imgproc.equalize_histogram(img_u8, img_u8);
+    jsfeat.haar.edges_density = 0.13;
+    jsfeat.imgproc.compute_integral_image(img_u8, ii_sum, ii_sqsum, jsfeat.haar.frontalface.tilted ? ii_tilted : null);
+
+    var faces = jsfeat.haar.detect_multi_scale(ii_sum, ii_sqsum, ii_tilted, null, img_u8.cols, img_u8.rows, jsfeat.haar.frontalface, 1.15, 2);
+    faces = jsfeat.haar.group_rectangles(faces, 1);
+
+    var eyes = jsfeat.haar.detect_multi_scale(ii_sum, ii_sqsum, ii_tilted, null, img_u8.cols, img_u8.rows, jsfeat.haar.eye, 1.15, 2);
+    eyes = jsfeat.haar.group_rectangles(eyes, 1);
+    localTrackingResults(eyes, faces)
+}
+
+function localTrackingResults(localEyes, localFaces){
     pendingRequest = false;
-    console.log("found " + localEyes.data.length + " eyes locally!");
-    var allEyes = convertLocalTrackingFormat(localEyes.data);
-    drawDebugSquares(allEyes);
+    console.log("found " + localEyes.length + " eyes locally!");
+    console.log(localEyes.toString());
+    var allEyes = convertLocalTrackingFormat(localEyes, localFaces);
+    //drawDebugSquares(allEyes);
+    setEyeData(allEyes);
     takePhoto();
+}
+
+function checkEyeInFace(eye, face){
+    if(eye.x > face.x && (eye.x + eye.width) < (face.x + face.width) && eye.y > face.y && (eye.y + eye.height) > (face.y + face.height)){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function checkEyeInAllFaces(eye, faces){
+    for(var i in faces){
+        if(checkEyeInFace(eye, faces[i])){
+            return true;
+        }
+    }
+    return false;
+}
+
+function convertLocalTrackingFormat(localEyes, localFaces){
+    var allEyes = [];
+    for(var i in localEyes){
+        if(checkEyeInAllFaces(localEyes[i], localFaces)){
+            var eye = {};
+            eye.x = 0;
+            eye.y = 0;
+            eye.ex = localEyes[i].x;
+            eye.ey = localEyes[i].y;
+            eye.ew = localEyes[i].width;
+            eye.eh = localEyes[i].height;
+            allEyes.push(eye);
+        }
+    }
+    return allEyes;
 }
 
 function sendToServer() {
@@ -208,21 +269,6 @@ function handleOpen() {
     isOpen = true;
     statusButton(true);
     takePhoto();
-}
-
-function convertLocalTrackingFormat(localEyes){
-    var allEyes = [];
-    for(var i in localEyes){
-        var eye = {};
-        eye.x = 0;
-        eye.y = 0;
-        eye.ex = localEyes[i].x;
-        eye.ey = localEyes[i].y;
-        eye.ew = localEyes[i].width;
-        eye.eh = localEyes[i].height;
-        allEyes.push(eye);
-    }
-    return allEyes;
 }
 
 function drawDebugSquares(allEyes){
@@ -312,9 +358,7 @@ document.addEventListener('deviceready', function () {
         connect(ip);
     } else { //disable resync/connection button
         $('#statusButton').addClass('hidden');
-        localTracker = new tracking.ObjectTracker(['face', 'eye']);
-        localTracker.setStepSize(1.7);
-        localTracker.on('track', localTrackingResults);
+        initLocalTracking();
         takePhoto();
     }
 }, false);

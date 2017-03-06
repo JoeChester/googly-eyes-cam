@@ -15,7 +15,7 @@
     <allow-intent href="market:*" />
     <name>Googly Eyes Cam</name>
     <description>
-        Eye Tracking AR App
+        Augmented Reality Eye Tracking App
     </description>
     <author email="jonas.kleinkauf@informatik.hs-fulda.de" href="http://www.crossoak.de">
         Jonas Kleinkauf
