@@ -330,12 +330,6 @@ function resync(){
 
 document.addEventListener('deviceready', function () {
 
-    if(typeof(Worker) !== "undefined"){
-        console.log("WebWorker Supported!");
-    }else{
-        console.log("WebWorker not supported!");
-    }
-
     initEye3D();
 
     CameraPreview.startCamera({
